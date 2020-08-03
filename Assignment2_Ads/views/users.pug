@@ -1,5 +1,11 @@
-doctype html
-html
-  head
-    title
-  body
+extends layout
+
+block content
+  if (users.length)
+    table
+        each registeredUser in users
+            tr
+                td= registeredUser.username
+  else
+    h1 No users!
+    include partials/footer.pug

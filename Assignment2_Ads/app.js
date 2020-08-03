@@ -7,8 +7,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+var bcrypt = require('bcryptjs');
+
 const MongoClient = require('mongodb').MongoClient;
-/*const MongoStore = require('connect-mongo')(session);*/
+const MongoStore = require('connect-mongo')(session);
 var mongoose = require('mongoose');
 const uri = "mongodb+srv://GurinderSingh1:Gurinder@123@cluster0-jmv4s.mongodb.net/Ads_Info?retryWrites=true&w=majority";
 try {
@@ -26,6 +30,7 @@ catch (err) {
 }
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var userModel = require('./models/user');
 
 var app = express();
 
@@ -41,9 +46,52 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// required for passport session
+app.use(session({
+    secret: 'secrettexthere',
+    saveUninitialized: true,
+    resave: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use('/', routes);
 app.use('/users', users);
 
+//Serialize user
+passport.serializeUser(function (user, done) {
+    done(null, user.id);
+});
+
+//Deserialize user try to find username
+passport.deserializeUser(function (id, done) {
+    userModel.findById(id, function (err, user) {
+        done(err, user);
+    });
+});
+
+//Local strategy used for logging users
+passport.use(new LocalStrategy(
+    function (username, password, done) {
+        userModel.findOne({
+            username: username
+        }, function (err, user) {
+            if (err) {
+                return done(err);
+            }
+
+            if (!user) {
+                return done(null, false);
+            }
+
+            //Compare hashed passwords
+            if (!bcrypt.compareSync(password, user.password)) {
+                return done(null, false);
+            }
+
+            return done(null, user);
+        });
+    }
+));
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
