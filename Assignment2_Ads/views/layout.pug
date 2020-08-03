@@ -1,0 +1,15 @@
+//-
+ File Name: layout.pug
+ Author's name:  Gurinder Singh
+ Website name: My Personal Portfolio
+ File description: This file is very important as it contains the layout part which is needed for all other pages of website so that navigation bar will still there to search forward.
+//
+html
+ head
+  title #{title}
+  <!-- link for css taken from bootstsrap -->
+  link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css")
+  link(rel="stylesheet" type= "text/css" href="/stylesheets/main.css")
+  include partials/header.pug
+  <!--blocking content for index page -->
+    block content

@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  //Check for any articles being passed in from the server
+  if (articles && articles.length)
+    table
+        thead
+            th Title
+            th Description
+            th Price
+        tbody
+            //If there is articles, create a row and column for each article
+            each article in articles
+                tr
+                    td= article.title
+                    td= article.description
+                    td= article.price
+  else
+    h1 No articles!
+    include partials/footer.pug
